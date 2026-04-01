@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArchitectAI — Team PAAN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#03050d;
+  --s1:#070c18;
+  --card:rgba(255,255,255,.033);
+  --border:rgba(255,255,255,.07);
+  --cyan:#00f0b4;
+  --blue:#3d7fff;
+  --magenta:#ff3daa;
+  --gold:#ffd060;
+  --text:#eef0f8;
+  --muted:#5a6278;
+  --muted2:#8892a8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+#cur{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--cyan);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur2{position:fixed;width:32px;height:32px;border-radius:50%;border:1px solid rgba(0,240,180,.3);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s ease,top .12s ease}
+
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:900}
+
+/* NAV */
+nav{position:fixed;top:0;inset-x:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;background:rgba(3,5,13,.72);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.1em;background:linear-gradient(110deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;align-items:center;gap:36px}
+.nav-links a{color:var(--muted2);text-decoration:none;font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;transition:color .2s;cursor:none}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:linear-gradient(110deg,var(--cyan),var(--blue));color:#000!important;padding:9px 22px;border-radius:6px;font-weight:600!important;font-size:.76rem!important}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 100px;position:relative;overflow:hidden}
+.hgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,240,180,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,180,.04) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,black 20%,transparent 100%)}
+.hglow{position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(0,240,180,.06),transparent);animation:gp 7s ease-in-out infinite}
+@keyframes gp{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.oa{width:550px;height:550px;background:rgba(61,127,255,.07);top:-150px;right:-100px;animation:dt 12s ease-in-out infinite}
+.ob{width:420px;height:420px;background:rgba(255,61,170,.055);bottom:-100px;left:-80px;animation:dt 16s ease-in-out infinite reverse}
+@keyframes dt{0%,100%{transform:translate(0,0)}50%{transform:translate(28px,-28px)}}
+
+.htag{display:inline-flex;align-items:center;gap:8px;background:rgba(0,240,180,.08);border:1px solid rgba(0,240,180,.18);padding:5px 16px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--cyan);letter-spacing:.08em;margin-bottom:40px;animation:fu .8s ease both}
+.htag .dot{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:blk 1.4s ease infinite}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:.15}}
+
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,12vw,10.5rem);letter-spacing:.03em;line-height:.9;animation:fu .8s ease .1s both;position:relative;z-index:1}
+.hero h1 .d{color:rgba(238,240,248,.16)}
+.hero h1 .g{background:linear-gradient(115deg,var(--cyan) 0%,var(--blue) 45%,var(--magenta) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 60px rgba(0,240,180,.25))}
+.hero-sub{font-size:1.08rem;color:var(--muted2);max-width:500px;line-height:1.78;animation:fu .8s ease .2s both;position:relative;z-index:1;margin-top:28px}
+
+.scroll-hint{margin-top:60px;display:flex;flex-direction:column;align-items:center;gap:10px;animation:fu .8s ease .4s both;position:relative;z-index:1}
+.scroll-hint span{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.sline{width:1px;height:52px;background:linear-gradient(to bottom,var(--cyan),transparent);animation:sl 2.2s ease-in-out infinite}
+@keyframes sl{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes fu{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+.sec{padding:110px 56px;max-width:1280px;margin:0 auto}
+.sl{font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--cyan);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.st{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5.5rem);letter-spacing:.03em;line-height:.95}
+.st .a{color:var(--cyan)}
+.ss{font-size:.98rem;color:var(--muted2);max-width:520px;line-height:1.78;margin-top:12px}
+
+/* PROBLEM */
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:60px}
+.prob-text p{font-size:1rem;color:var(--muted2);line-height:1.85;margin-bottom:18px}
+.prob-text p strong{color:var(--text)}
+.prob-text .hl{color:var(--magenta)}
+.warn-box{margin-top:26px;padding:18px 22px;background:rgba(255,61,170,.05);border:1px solid rgba(255,61,170,.15);border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted2);line-height:1.7}
+.warn-box .wt{color:var(--magenta);font-size:.85rem;display:block;margin-bottom:5px}
+
+/* flowchart */
+.prob-flow{background:rgba(7,12,24,.9);border:1px solid var(--border);border-radius:18px;padding:30px;position:relative;overflow:hidden}
+.prob-flow::before{content:'';position:absolute;top:0;inset-x:0;height:2px;background:linear-gradient(90deg,var(--magenta),var(--blue),var(--cyan))}
+.fn{display:flex;align-items:center;justify-content:center;padding:11px 18px;border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.73rem;text-align:center}
+.fn-idea{background:rgba(0,240,180,.09);border:1px solid rgba(0,240,180,.28);color:var(--cyan)}
+.fn-gap{background:rgba(61,127,255,.09);border:1px solid rgba(61,127,255,.28);color:#80aaff;width:72%;margin:0 auto}
+.fn-dil{background:rgba(255,208,96,.08);border:1px solid rgba(255,208,96,.25);color:var(--gold);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);width:110px;height:72px;margin:0 auto}
+.fn-dil span{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold)}
+.fn-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}
+.fn-bad{background:rgba(255,61,170,.07);border:1px solid rgba(255,61,170,.22);color:var(--magenta);padding:10px 12px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.66rem;text-align:center;line-height:1.5}
+.fa{text-align:center;color:var(--muted);margin:8px 0;font-size:1rem;line-height:1}
+.fn-fail{background:rgba(255,61,170,.11);border:1px solid rgba(255,61,170,.38);color:#ff7ec7;padding:14px;border-radius:10px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:.06em;margin-top:0}
+
+/* SOLUTION STEPS */
+.steps-outer{margin-top:72px;position:relative}
+.steps-spine{position:absolute;left:27px;top:0;bottom:60px;width:1px;background:linear-gradient(to bottom,var(--cyan),var(--blue),var(--magenta));opacity:.28}
+.step{display:grid;grid-template-columns:56px 1fr;gap:28px;margin-bottom:40px;align-items:flex-start}
+.sdot{width:56px;height:56px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;position:relative;z-index:2}
+.dc{background:rgba(0,240,180,.11);border:1px solid rgba(0,240,180,.32);color:var(--cyan)}
+.db{background:rgba(61,127,255,.11);border:1px solid rgba(61,127,255,.32);color:#80aaff}
+.dm{background:rgba(255,61,170,.09);border:1px solid rgba(255,61,170,.28);color:var(--magenta)}
+.dg{background:rgba(255,208,96,.09);border:1px solid rgba(255,208,96,.28);color:var(--gold)}
+.scont{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 30px;transition:all .3s;cursor:none}
+.scont:hover{border-color:rgba(0,240,180,.2);background:rgba(255,255,255,.05);transform:translateX(5px)}
+.stag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:3px 10px;border-radius:4px;margin-bottom:9px;letter-spacing:.06em}
+.tc{background:rgba(0,240,180,.1);color:var(--cyan);border:1px solid rgba(0,240,180,.18)}
+.tb{background:rgba(61,127,255,.1);color:#80aaff;border:1px solid rgba(61,127,255,.18)}
+.tm{background:rgba(255,61,170,.08);color:var(--magenta);border:1px solid rgba(255,61,170,.16)}
+.tg{background:rgba(255,208,96,.08);color:var(--gold);border:1px solid rgba(255,208,96,.16)}
+.scont h3{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:.04em;margin-bottom:7px}
+.scont p{font-size:.88rem;color:var(--muted2);line-height:1.72}
+
+/* ARCH DIAGRAM */
+.arch-wrap{padding:80px 56px;background:linear-gradient(180deg,transparent,rgba(0,240,180,.018) 50%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.arch-inner{max-width:1280px;margin:0 auto}
+.arch-box{margin-top:44px;background:rgba(5,9,18,.85);border:1px solid rgba(0,240,180,.09);border-radius:20px;padding:36px;overflow:hidden;position:relative}
+.arch-box::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,240,180,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,180,.022) 1px,transparent 1px);background-size:38px 38px}
+.arch-hint{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:var(--muted);margin-bottom:12px}
+
+.a-node{position:absolute;padding:13px 17px;border-radius:11px;font-family:'JetBrains Mono',monospace;font-size:.71rem;cursor:none;transition:all .22s;z-index:10;text-align:center;min-width:130px;user-select:none;backdrop-filter:blur(6px)}
+.a-node:hover{transform:scale(1.09) translateY(-4px);z-index:30;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.a-node .ni{font-size:1.15rem;display:block;margin-bottom:3px}
+.a-node .nl{font-size:.6rem;opacity:.5;display:block;margin-top:2px;letter-spacing:.03em}
+.nu{background:rgba(255,61,170,.1);border:1px solid rgba(255,61,170,.33);color:#ff7ec7}
+.nf{background:rgba(61,127,255,.1);border:1px solid rgba(61,127,255,.33);color:#80aaff}
+.nap{background:rgba(0,240,180,.08);border:1px solid rgba(0,240,180,.28);color:var(--cyan)}
+.nbk{background:rgba(255,208,96,.09);border:1px solid rgba(255,208,96,.28);color:var(--gold)}
+.nkb{background:rgba(61,127,255,.07);border:1px solid rgba(61,127,255,.2);color:#9ec4ff}
+.npr{background:rgba(0,240,180,.06);border:1px solid rgba(0,240,180,.18);color:#5dffcc}
+.nvi{background:rgba(255,61,170,.07);border:1px solid rgba(255,61,170,.2);color:#ffaee0}
+.ndp{background:rgba(255,208,96,.07);border:1px solid rgba(255,208,96,.18);color:#ffe596}
+.nmg{background:rgba(61,200,100,.07);border:1px solid rgba(61,200,100,.2);color:#7ddd9a}
+.ncw{background:rgba(130,130,255,.07);border:1px solid rgba(130,130,255,.18);color:#b0b0ff}
+
+.a-tooltip{position:fixed;background:rgba(5,9,18,.97);border:1px solid rgba(0,240,180,.22);border-radius:10px;padding:12px 16px;font-size:.75rem;color:var(--text);pointer-events:none;z-index:999;max-width:220px;line-height:1.55;box-shadow:0 12px 50px rgba(0,0,0,.65);opacity:0;transition:opacity .17s}
+.a-tooltip.show{opacity:1}
+.a-tooltip strong{color:var(--cyan);font-family:'Bebas Neue',sans-serif;font-size:.9rem;display:block;margin-bottom:4px}
+
+/* DEMO */
+.demo-sec{padding:80px 56px;max-width:1280px;margin:0 auto}
+.demo-grid{display:grid;grid-template-columns:1fr 1.45fr;gap:36px;margin-top:52px;align-items:start}
+
+.pp{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:sticky;top:96px}
+.pp-hd{background:rgba(0,240,180,.04);border-bottom:1px solid var(--border);padding:15px 22px;display:flex;align-items:center;gap:10px}
+.pp-hd .pht{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.06em}
+.pp-hd .phtag{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:3px 10px;border-radius:4px;background:rgba(0,240,180,.1);color:var(--cyan);border:1px solid rgba(0,240,180,.18)}
+.pdisplay{margin:18px 20px 0;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text);line-height:1.68;background:rgba(0,0,0,.35);border-radius:10px;border:1px solid rgba(0,240,180,.1);padding:18px 18px 18px 18px;min-height:76px;position:relative}
+.pdisplay .lk{position:absolute;top:10px;right:12px;opacity:.35;font-size:.85rem}
+.lnote{margin:8px 20px 0;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+.rprog{height:3px;background:rgba(255,255,255,.05);margin:14px 20px 0;border-radius:2px;overflow:hidden}
+.rbar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--blue));border-radius:2px;transition:width .18s}
+.rbtn{margin:12px 20px 20px;width:calc(100% - 40px);background:linear-gradient(110deg,var(--cyan),var(--blue));color:#000;border:none;padding:15px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;cursor:none;transition:all .25s;overflow:hidden;position:relative}
+.rbtn::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,rgba(255,255,255,.22),transparent);transform:translateX(-100%);transition:transform .38s}
+.rbtn:hover::before{transform:translateX(100%)}
+.rbtn:hover{box-shadow:0 0 40px rgba(0,240,180,.3);transform:translateY(-2px)}
+.rbtn.running{opacity:.65;pointer-events:none}
+
+.op{display:flex;flex-direction:column;gap:18px}
+.oc{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;opacity:0;transform:translateY(18px);transition:opacity .5s,transform .5s}
+.oc.show{opacity:1;transform:translateY(0)}
+.och{padding:13px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.018)}
+.och h4{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.06em}
+.ocm{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted)}
+.cdot{width:7px;height:7px;border-radius:50%}
+.dc2{background:var(--gold)}
+.dm2{background:var(--magenta)}
+.dc3{background:var(--cyan)}
+
+/* services */
+.sb{padding:16px}
+.sr{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sr:last-child{border-bottom:none}
+.sbadge{min-width:82px;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.58rem;text-align:center;flex-shrink:0;letter-spacing:.04em}
+.sg{background:rgba(255,208,96,.1);color:var(--gold);border:1px solid rgba(255,208,96,.2)}
+.sb2{background:rgba(61,127,255,.1);color:#80aaff;border:1px solid rgba(61,127,255,.2)}
+.sc{background:rgba(0,240,180,.08);color:var(--cyan);border:1px solid rgba(0,240,180,.16)}
+.sm{background:rgba(255,61,170,.08);color:var(--magenta);border:1px solid rgba(255,61,170,.16)}
+.sgrn{background:rgba(61,200,100,.08);color:#7ddd9a;border:1px solid rgba(61,200,100,.16)}
+.sdesc{font-size:.79rem;color:var(--muted2);line-height:1.6}
+.sdesc strong{color:var(--text);display:block;margin-bottom:1px}
+
+/* diagram */
+.db2{padding:18px}
+.mc{background:rgba(0,0,0,.4);border:1px solid rgba(0,240,180,.09);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted2);line-height:1.7;margin-bottom:14px}
+.mc .kw{color:var(--magenta)}.mc .nd{color:var(--cyan)}
+
+/* cost */
+.cb2{padding:22px}
+.cbig{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;background:linear-gradient(110deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.csub{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:4px;letter-spacing:.05em}
+.crows{margin-top:20px}
+.crow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cn{font-size:.77rem;color:var(--muted2);min-width:108px}
+.cbw{flex:1;height:4px;background:rgba(255,255,255,.05);border-radius:2px}
+.cbar{height:100%;border-radius:2px;transition:width 1.3s cubic-bezier(.25,.8,.25,1)}
+.ca{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);min-width:52px;text-align:right}
+.ctip{margin-top:16px;padding:13px 16px;background:rgba(0,240,180,.04);border:1px solid rgba(0,240,180,.1);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--cyan);line-height:1.65}
+
+/* FORM STYLES */
+.pform{padding:20px}
+.fgroup{margin-bottom:20px}
+.flabel{display:block;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.finput{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(0,240,180,.1);border-radius:8px;padding:12px 16px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.9rem;transition:all .2s}
+.finput:focus{outline:none;border-color:rgba(0,240,180,.3);background:rgba(0,0,0,.5)}
+.finput::placeholder{color:var(--muted)}
+textarea.finput{min-height:80px;resize:vertical}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fchecks{display:flex;flex-direction:column;gap:8px}
+.fcheck{display:flex;align-items:center;gap:8px;color:var(--muted2);font-size:.8rem;cursor:none;transition:color .2s}
+.fcheck:hover{color:var(--text)}
+.fcheck input{margin:0}
+
+/* LOADING STATES */
+.lcontent{padding:20px}
+.lstep{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--muted2);margin-bottom:12px;padding-left:20px;position:relative}
+.lstep::before{content:'⚡';position:absolute;left:0;color:var(--cyan);animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ERROR STATES */
+.econtent{padding:20px}
+.emsg{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--magenta);background:rgba(255,61,170,.05);border:1px solid rgba(255,61,170,.15);border-radius:8px;padding:16px;margin-bottom:16px}
+
+/* COMPARE */
+.cmp-sec{padding:80px 56px;max-width:1280px;margin:0 auto}
+.tbl-wrap{margin-top:52px;overflow:auto;border-radius:16px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+th{padding:15px 18px;background:rgba(255,255,255,.028);font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted2);text-transform:uppercase;border-bottom:1px solid var(--border);text-align:left}
+td{padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.038);color:var(--muted2);font-size:.8rem}
+tr:last-child td{border-bottom:none}
+.cu{background:rgba(0,240,180,.035);color:var(--text);font-weight:500}
+.cuh{background:rgba(0,240,180,.07)!important;color:var(--cyan)!important}
+.ck{color:var(--cyan)}.cx{color:rgba(255,255,255,.18)}
+td:first-child{color:var(--text)}
+
+/* IMPACT */
+.imp-sec{padding:80px 56px;max-width:1280px;margin:0 auto}
+.imp-stmt{padding:36px 44px;background:linear-gradient(130deg,rgba(0,240,180,.055),rgba(61,127,255,.035));border:1px solid rgba(0,240,180,.14);border-radius:18px;margin:44px 0 52px;position:relative;overflow:hidden;text-align:center}
+.imp-stmt::before{content:'';position:absolute;top:0;inset-x:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--magenta))}
+.imp-stmt p{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.35rem,3vw,2rem);letter-spacing:.04em;line-height:1.3}
+.imp-stmt em{font-style:normal;color:var(--cyan)}
+.igrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.ic{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 20px;transition:all .3s;cursor:none;position:relative;overflow:hidden}
+.ic::after{content:'';position:absolute;bottom:0;inset-x:0;height:2px;transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.ic:nth-child(1)::after{background:var(--magenta)}
+.ic:nth-child(2)::after{background:var(--blue)}
+.ic:nth-child(3)::after{background:var(--cyan)}
+.ic:nth-child(4)::after{background:var(--gold)}
+.ic:hover::after{transform:scaleX(1)}
+.ic:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.11)}
+.icico{font-size:2rem;margin-bottom:12px}
+.ictit{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;margin-bottom:3px}
+.icwho{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.04em;margin-bottom:16px}
+.icl{list-style:none}
+.icl li{font-size:.79rem;color:var(--muted2);line-height:1.55;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:7px}
+.icl li::before{content:'→';color:var(--cyan);flex-shrink:0}
+
+/* CTA */
+.cta{padding:100px 56px;text-align:center;position:relative;overflow:hidden;border-top:1px solid var(--border)}
+.cta-glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 55% at 50% 50%,rgba(0,240,180,.055),transparent);pointer-events:none}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,9vw,8.5rem);letter-spacing:.03em;line-height:.9;position:relative;z-index:1}
+.cta h2 span{background:linear-gradient(110deg,var(--cyan),var(--blue),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cta p{color:var(--muted2);margin:18px auto 0;font-size:.98rem;max-width:420px;position:relative;z-index:1;line-height:1.7}
+.cbtns{display:flex;gap:14px;justify-content:center;margin-top:40px;position:relative;z-index:1}
+.bp{background:linear-gradient(110deg,var(--cyan),var(--blue));color:#000;padding:15px 38px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;text-decoration:none;transition:all .25s;cursor:none;box-shadow:0 0 30px rgba(0,240,180,.18)}
+.bp:hover{box-shadow:0 0 60px rgba(0,240,180,.38);transform:translateY(-3px)}
+.bg{background:transparent;border:1px solid var(--border);color:var(--text);padding:15px 38px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;text-decoration:none;transition:all .25s;cursor:none}
+.bg:hover{border-color:rgba(0,240,180,.28);background:rgba(0,240,180,.04)}
+
+footer{padding:36px 56px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ftl{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;background:linear-gradient(110deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ftt{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.05em}
+.awsp{display:flex;align-items:center;gap:6px;background:rgba(255,153,0,.07);border:1px solid rgba(255,153,0,.18);padding:6px 14px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:#ffb84d}
+
+.rv{opacity:0;transform:translateY(34px);transition:opacity .75s ease,transform .75s ease}
+.rv.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  nav{padding:14px 20px}.nav-links{display:none}
+  .sec,.demo-sec,.cmp-sec,.imp-sec,.cta{padding:70px 20px}
+  .arch-wrap{padding:70px 20px}
+  .prob-grid{grid-template-columns:1fr}
+  .demo-grid{grid-template-columns:1fr}
+  .pp{position:static}
+  .igrid{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:4.5rem}
+  footer{padding:24px 20px;flex-direction:column;gap:12px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur2"></div>
+<div class="a-tooltip" id="tip"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">ArchitectAI</div>
+  <div class="nav-links">
+    <a href="#problem">Problem</a>
+    <a href="#solution">Solution</a>
+    <a href="#demo">Demo</a>
+    <a href="#impact">Impact</a>
+    <a href="solution.html" class="nav-cta">Deep Dive →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hgrid"></div>
+  <div class="hglow"></div>
+  <div class="orb oa"></div>
+  <div class="orb ob"></div>
+  <div class="htag"><span class="dot"></span>AWS Hackathon · Team PAAN · Coding Agents Track</div>
+  <h1><span class="d">YOUR</span><br><span class="g">ARCHITECT</span><br><span class="d">AI</span></h1>
+  <p class="hero-sub">Describe your idea in plain English. Get a complete AWS architecture, cost estimate, and visual diagram — in seconds, not weeks.</p>
+  <div class="scroll-hint">
+    <span>discover how</span>
+    <div class="sline"></div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec" id="problem">
+  <div class="sl rv">// 01 · The Problem</div>
+  <h2 class="st rv" style="transition-delay:.1s">THE AWS<br><span class="a">COMPLEXITY</span><br>GAP</h2>
+  <div class="prob-grid rv" style="transition-delay:.2s">
+    <div class="prob-text">
+      <p>Imagine you're a developer with <strong>a great app idea</strong>. You understand the features — but not how to design a proper cloud architecture.</p>
+      <p>You search online, but AWS has <strong>hundreds of services</strong>. It's confusing and overwhelming.</p>
+      <p>You either choose too many services → <span class="hl">over-engineered & expensive</span>, or too few → <span class="hl">system fails at scale</span>.</p>
+      <p>You don't know which services to pick, how they connect, or <strong>how much it will cost</strong>. You waste weeks, make poor decisions, and face painful production failures.</p>
+      <div class="warn-box"><span class="wt">⚠ Real-World Impact</span>Mistakes made in week 1 typically surface in months 6–12. By then, the cost to fix is <strong>10–100× higher</strong> than getting it right at the start.</div>
+    </div>
+    <div class="prob-flow">
+      <div class="fn fn-idea">💡 Great App Idea</div>
+      <div class="fa">↓</div>
+      <div class="fn fn-gap">AWS Complexity Gap — 200+ Services</div>
+      <div class="fa">↓</div>
+      <div style="display:flex;justify-content:center;margin:2px 0 6px">
+        <div class="fn fn-dil"><span>The<br>Dilemma</span></div>
+      </div>
+      <div class="fa">↓</div>
+      <div class="fn-two">
+        <div class="fn-bad">📦 Too Many Services<br><span style="font-size:.6rem;opacity:.6">Over-engineered & Costly</span></div>
+        <div class="fn-bad">📭 Too Few Services<br><span style="font-size:.6rem;opacity:.6">Fails at Scale</span></div>
+      </div>
+      <div class="fa">↓</div>
+      <div class="fn fn-fail">🔴 Production Failure</div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="sec" id="solution" style="padding-top:80px">
+  <div class="sl rv">// 02 · Our Solution</div>
+  <h2 class="st rv" style="transition-delay:.1s">HOW IT<br><span class="a">WORKS</span></h2>
+  <p class="ss rv" style="transition-delay:.2s">You describe your idea → AI designs, explains, visualizes, and improves your entire cloud system.</p>
+  <div class="steps-outer rv" style="transition-delay:.3s">
+    <div class="steps-spine"></div>
+    <div class="step"><div class="sdot dc">01</div><div class="scont"><div class="stag tc">Natural Language</div><h3>Describe Your Idea</h3><p>Type your requirement in plain English — "Build an app like Instagram" is enough. No AWS knowledge required to get started.</p></div></div>
+    <div class="step"><div class="sdot db">02</div><div class="scont"><div class="stag tb">Amazon Bedrock</div><h3>AI Thinks Like an Expert</h3><p>Amazon Bedrock analyzes your idea, reasons over 200+ AWS services, and selects the optimal stack — with justification for every decision.</p></div></div>
+    <div class="step"><div class="sdot dc">03</div><div class="scont"><div class="stag tc">Architecture Blueprint</div><h3>It Builds a System Plan</h3><p>Complete architecture with every service listed, how they interconnect, and exactly why each one was chosen over alternatives.</p></div></div>
+    <div class="step"><div class="sdot dg">04</div><div class="scont"><div class="stag tg">AWS Pricing API</div><h3>Real-Time Cost Estimate</h3><p>Live pricing pulled from the AWS Pricing API. Know your monthly infrastructure cost before writing a single line of code.</p></div></div>
+    <div class="step"><div class="sdot dm">05</div><div class="scont"><div class="stag tm">Mermaid.js</div><h3>Visual Architecture Diagram</h3><p>Auto-generated interactive flowcharts. The LLM produces Mermaid syntax natively — rendered instantly in-browser, fully exportable.</p></div></div>
+    <div class="step"><div class="sdot db">06</div><div class="scont"><div class="stag tb">Audit Engine</div><h3>Improve Existing Designs</h3><p>Paste your current architecture and get instant AI analysis — bottlenecks, cost inefficiencies, and specific improvement recommendations.</p></div></div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE DIAGRAM -->
+<div class="arch-wrap" id="architecture">
+  <div class="arch-inner">
+    <div class="sl rv">// 03 · System Architecture</div>
+    <h2 class="st rv" style="transition-delay:.1s">SYSTEM<br><span class="a">DESIGN</span></h2>
+    <p class="ss rv" style="transition-delay:.2s">Full system — all 10 components connected. Hover nodes for details, drag to rearrange.</p>
+    <div class="arch-box rv" style="transition-delay:.3s">
+      <div class="arch-hint">⠿ Hover any node · Drag to rearrange · Edges animate live</div>
+      <div id="adiag" style="height:510px;position:relative;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DEMO -->
+<section class="demo-sec" id="demo">
+  <div class="sl rv">// 04 · Interactive Generator</div>
+  <h2 class="st rv" style="transition-delay:.1s">BUILD YOUR<br><span class="a">ARCHITECTURE</span></h2>
+  <p class="ss rv" style="transition-delay:.2s">Describe your project and watch AI design your complete AWS architecture with real-time cost estimates.</p>
+
+  <div class="demo-grid rv" style="transition-delay:.3s">
+    <div class="pp">
+      <div class="pp-hd">
+        <span>🚀</span><span class="pht">Project Input</span><span class="phtag">Live Mode</span>
+      </div>
+      <div class="pform">
+        <div class="fgroup">
+          <label class="flabel">Project Idea *</label>
+          <textarea id="idea" class="finput" placeholder="Describe your project in plain English...">A real-time collaborative code editor for remote teams, similar to VS Code Web.</textarea>
+        </div>
+        <div class="frow">
+          <div class="fgroup">
+            <label class="flabel">Expected Users *</label>
+            <input type="number" id="users" class="finput" placeholder="e.g., 10000" value="150000">
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Monthly Budget</label>
+            <input type="text" id="budget" class="finput" placeholder="e.g., $5000" value="$3,000/month">
+          </div>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">Key Features</label>
+          <div class="fchecks">
+            <label class="fcheck"><input type="checkbox" value="real-time collaboration" checked> Real-time collaboration</label>
+            <label class="fcheck"><input type="checkbox" value="user authentication" checked> User authentication</label>
+            <label class="fcheck"><input type="checkbox" value="project file storage" checked> Project file storage</label>
+            <label class="fcheck"><input type="checkbox" value="code compilation in the background" checked> Code compilation</label>
+            <label class="fcheck"><input type="checkbox" value="analytics dashboard"> Analytics dashboard</label>
+            <label class="fcheck"><input type="checkbox" value="api integration"> API integration</label>
+          </div>
+        </div>
+      </div>
+      <div class="rprog"><div class="rbar" id="rbar"></div></div>
+      <button class="rbtn" id="rbtn" onclick="generateArchitecture()">⚡ GENERATE ARCHITECTURE</button>
+    </div>
+
+    <div class="op" id="opanel">
+      <div id="loading-state" class="oc" style="display:none;">
+        <div class="och"><div class="cdot dc3"></div><h4>Processing...</h4><span class="ocm">AI Analysis</span></div>
+        <div class="lcontent">
+          <div class="lstep">🔍 Analyzing requirements...</div>
+          <div class="lstep">🧠 Selecting optimal AWS services...</div>
+          <div class="lstep">📊 Calculating cost estimates...</div>
+          <div class="lstep">🎨 Generating architecture diagram...</div>
+        </div>
+      </div>
+
+      <div id="error-state" class="oc" style="display:none;">
+        <div class="och"><div class="cdot dm2"></div><h4>Error</h4><span class="ocm">Failed to generate</span></div>
+        <div class="econtent">
+          <div class="emsg" id="error-message">Something went wrong. Please try again.</div>
+          <button class="rbtn" onclick="resetForm()" style="margin-top:20px;">🔄 Try Again</button>
+        </div>
+      </div>
+
+      <div class="oc" id="oc1" style="display:none;">
+        <div class="och"><div class="cdot dc2"></div><h4>Architecture Blueprint</h4><span class="ocm">AI Generated</span></div>
+        <div class="sb" id="services-list">
+          <!-- Services will be populated here -->
+        </div>
+      </div>
+
+      <div class="oc" id="oc2" style="display:none;">
+        <div class="och"><div class="dot dm2"></div><h4>Architecture Diagram</h4><span class="ocm">Mermaid.js · Interactive</span></div>
+        <div class="db2">
+          <div id="mermaid-diagram" style="background:rgba(0,0,0,.45);border-radius:8px;padding:20px;min-height:400px;display:flex;align-items:center;justify-content:center;">
+            <div style="color:var(--muted2);font-family:'JetBrains Mono',monospace;font-size:.8rem;">Loading diagram...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="oc" id="oc3" style="display:none;">
+        <div class="och"><div class="dot sg"></div><h4>Cost Analysis</h4><span class="ocm">Monthly Estimate</span></div>
+        <div class="cb2" id="cost-breakdown">
+          <!-- Cost breakdown will be populated here -->
+        </div>
+      </div>
+
+      <div class="oc" id="oc4" style="display:none;">
+        <div class="och"><div class="dot sb2"></div><h4>Implementation Plan</h4><span class="ocm">Step-by-step</span></div>
+        <div class="sb" id="implementation-steps">
+          <!-- Implementation steps will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+              <rect x="166" y="14" width="60" height="26" rx="6" fill="rgba(120,120,255,.06)" stroke="rgba(120,120,255,.18)" stroke-width="1"/>
+              <text x="196" y="30" font-family="JetBrains Mono" font-size="6.5" fill="rgba(160,160,255,.65)" text-anchor="middle">CloudWatch</text>
+              <line x1="71" y1="135" x2="86" y2="135" stroke="rgba(0,240,180,.55)" stroke-width="1.5" marker-end="url(#ar1)" stroke-dasharray="4 3"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+              <line x1="149" y1="135" x2="164" y2="135" stroke="rgba(0,240,180,.55)" stroke-width="1.5" marker-end="url(#ar1)" stroke-dasharray="4 3"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+              <line x1="196" y1="150" x2="196" y2="214" stroke="rgba(255,61,170,.45)" stroke-width="1" marker-end="url(#ar2)" stroke-dasharray="3 4"/>
+              <line x1="226" y1="127" x2="248" y2="78" stroke="rgba(0,240,180,.5)" stroke-width="1.5" marker-end="url(#ar1)" stroke-dasharray="4 3"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+              <line x1="226" y1="143" x2="248" y2="172" stroke="rgba(0,240,180,.5)" stroke-width="1.5" marker-end="url(#ar1)" stroke-dasharray="4 3"><animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.5s" repeatCount="indefinite"/></line>
+              <line x1="281" y1="87" x2="281" y2="162" stroke="rgba(255,208,96,.3)" stroke-width="1" stroke-dasharray="3 4"/>
+              <line x1="313" y1="179" x2="346" y2="179" stroke="rgba(0,240,180,.55)" stroke-width="1.5" marker-end="url(#ar1)"/>
+              <line x1="196" y1="120" x2="196" y2="41" stroke="rgba(120,120,255,.2)" stroke-width="1" stroke-dasharray="3 4"/>
+              <line x1="118" y1="120" x2="184" y2="40" stroke="rgba(120,120,255,.15)" stroke-width="1" stroke-dasharray="3 4"/>
+              <line x1="281" y1="164" x2="226" y2="40" stroke="rgba(120,120,255,.12)" stroke-width="1" stroke-dasharray="3 4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="oc" id="oc3">
+        <div class="och"><div class="cdot dc3"></div><h4>Cost Estimate</h4><span class="ocm">AWS Pricing API · us-east-1</span></div>
+        <div class="cb2">
+          <div class="cbig">$2,340</div>
+          <div class="csub">// estimated monthly cost · 10M events/day</div>
+          <div class="crows">
+            <div class="crow"><span class="cn">Kinesis Streams</span><div class="cbw"><div class="cbar" id="cb1" style="width:0%;background:linear-gradient(90deg,#ffd060,#ff9020)"></div></div><span class="ca">$880</span></div>
+            <div class="crow"><span class="cn">Redshift Serverless</span><div class="cbw"><div class="cbar" id="cb2" style="width:0%;background:linear-gradient(90deg,#00f0b4,#00b8a0)"></div></div><span class="ca">$1,120</span></div>
+            <div class="crow"><span class="cn">Lambda (compute)</span><div class="cbw"><div class="cbar" id="cb3" style="width:0%;background:linear-gradient(90deg,#3d7fff,#7b5fff)"></div></div><span class="ca">$90</span></div>
+            <div class="crow"><span class="cn">S3 + Transfer</span><div class="cbw"><div class="cbar" id="cb4" style="width:0%;background:linear-gradient(90deg,#ffd060,#ffaa30)"></div></div><span class="ca">$60</span></div>
+            <div class="crow"><span class="cn">QuickSight</span><div class="cbw"><div class="cbar" id="cb5" style="width:0%;background:linear-gradient(90deg,#3d7fff,#60aaff)"></div></div><span class="ca">$120</span></div>
+            <div class="crow"><span class="cn">CloudWatch + SQS</span><div class="cbw"><div class="cbar" id="cb6" style="width:0%;background:rgba(255,255,255,.25)"></div></div><span class="ca">$70</span></div>
+          </div>
+          <div class="ctip">💡 Savings: Switch to Redshift Serverless (vs provisioned) → save ~$400/mo on idle. Enable S3 Intelligent-Tiering → ~$20/mo. Reserve Kinesis shards → 40% discount.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="cmp-sec" id="compare">
+  <div class="sl rv">// 05 · Competitive Edge</div>
+  <h2 class="st rv" style="transition-delay:.1s">VS<br><span class="a">EXISTING</span><br>TOOLS</h2>
+  <div class="tbl-wrap rv" style="transition-delay:.2s">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th><th>Eraser AI</th><th>Cloudairy AI</th><th>AWS Workload Discovery</th><th>AWS Well-Arch Tool</th><th class="cuh">✦ Our Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Generate Architecture from Idea</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+        <tr><td>AWS-Specific Service Selection</td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+        <tr><td>Real-Time Cost Estimation</td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+        <tr><td>Analyze / Improve Architecture</td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+        <tr><td>Multi-Architecture Comparison</td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+        <tr><td>End-to-End (Idea → Plan)</td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td class="cu"><span class="ck">✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="imp-sec" id="impact">
+  <div class="sl rv">// 06 · Users & Impact</div>
+  <h2 class="st rv" style="transition-delay:.1s">WHO<br><span class="a">BENEFITS</span></h2>
+  <div class="imp-stmt rv" style="transition-delay:.2s">
+    <p><em>"Reducing guesswork in cloud architecture</em> by replacing manual research and ad-hoc AI usage with structured, guided decision-making."</p>
+  </div>
+  <div class="igrid rv" style="transition-delay:.3s">
+    <div class="ic"><div class="icico">🚀</div><div class="ictit">Startups & Founders</div><div class="icwho">Early-stage decision makers</div><ul class="icl"><li>Clear starting point, no blank-page paralysis</li><li>Avoid over-engineering in early stages</li><li>Reduce reliance on expensive experts</li></ul></div>
+    <div class="ic"><div class="icico">👩‍💻</div><div class="ictit">Developers & Teams</div><div class="icwho">Builders with limited cloud expertise</div><ul class="icl"><li>Replace scattered docs research</li><li>Consistent, structured suggestions</li><li>Catch design issues before production</li></ul></div>
+    <div class="ic"><div class="icico">🏢</div><div class="ictit">Mid-Size Companies</div><div class="icwho">Teams scaling existing systems</div><ul class="icl"><li>Validate existing architectures fast</li><li>Detect over-engineering instantly</li><li>Compare alternatives before redesign</li></ul></div>
+    <div class="ic"><div class="icico">🎓</div><div class="ictit">Students & Learners</div><div class="icwho">People learning system design</div><ul class="icl"><li>Learn through real-world generation</li><li>Understand how services fit together</li><li>Visualize designs interactively</li></ul></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-glow"></div>
+  <h2>GO<br><span>DEEPER</span></h2>
+  <p>Explore the full solution — tech stack breakdown, audit engine, multi-architecture comparison, and AWS service justifications.</p>
+  <div class="cbtns">
+    <a href="solution.html" class="bp">Explore Solution →</a>
+    <a href="#hero" class="bg">Back to Top ↑</a>
+  </div>
+</div>
+
+<footer>
+  <div class="ftl">ArchitectAI</div>
+  <div class="ftt">Team PAAN · AWS Hackathon 2025 · Coding Agents</div>
+  <div class="awsp">☁️ Powered by Amazon Bedrock</div>
+</footer>
+
+<script>
+/* CURSOR */
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function l(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(l)})();
+
+/* REVEAL */
+document.querySelectorAll('.rv').forEach(el=>{
+  new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('on')},{threshold:.08}).observe(el);
+});
+
+/* ─── ARCH DIAGRAM ─── */
+const tip=document.getElementById('tip');
+const NODES=[
+  {id:'user',x:14,y:220,icon:'👤',label:'User Browser',sub:'Web Interface',cls:'nu',info:'End users interact via React.js — no AWS knowledge needed. Natural language input is all that\'s required.'},
+  {id:'fe',x:175,y:220,icon:'⚛️',label:'React Frontend',sub:'S3 + CloudFront',cls:'nf',info:'Hosted on Amazon S3 + CloudFront CDN. Renders Mermaid diagrams, cost dashboards, and architecture output in real-time.'},
+  {id:'cw',x:175,y:80,icon:'📡',label:'CloudWatch',sub:'Monitoring',cls:'ncw',info:'Full pipeline observability: API latency, Bedrock token usage, error rates, event-lag alarms, and performance dashboards.'},
+  {id:'api',x:350,y:220,icon:'⚙️',label:'FastAPI Backend',sub:'EC2 / Beanstalk',cls:'nap',info:'Python FastAPI orchestrates all AI calls, processes requests, and returns structured JSON: services, costs, and Mermaid diagram syntax.'},
+  {id:'bedrock',x:535,y:80,icon:'🧠',label:'Amazon Bedrock',sub:'LLM Core',cls:'nbk',info:'Claude / Titan LLMs via Amazon Bedrock. Reasons over 200+ AWS services to produce expert-level architecture blueprints.'},
+  {id:'kb',x:535,y:220,icon:'📚',label:'Knowledge Base',sub:'AWS Architecture Center',cls:'nkb',info:'Bedrock Knowledge Base indexes AWS Architecture Center docs and the Well-Architected Framework for accurate, best-practice recommendations.'},
+  {id:'pricing',x:535,y:360,icon:'💰',label:'AWS Pricing API',sub:'Cost Engine',cls:'npr',info:'Real-time pricing from the AWS Pricing API — every service cost fetched live, no static lookup tables or outdated spreadsheets.'},
+  {id:'vis',x:350,y:380,icon:'📊',label:'Mermaid.js',sub:'Diagram Engine',cls:'nvi',info:'LLM generates Mermaid graph syntax natively. Rendered client-side as interactive, shareable architecture flowcharts.'},
+  {id:'deploy',x:175,y:380,icon:'☁️',label:'Deployment',sub:'EC2 + S3 + IAM',cls:'ndp',info:'Backend on EC2 via Elastic Beanstalk. Frontend on S3 + CloudFront. IAM roles enforce least-privilege access throughout.'},
+  {id:'mongo',x:720,y:220,icon:'🗄️',label:'MongoDB',sub:'Data Layer',cls:'nmg',info:'Stores user inputs, generated architectures, analysis results, and session history for multi-turn conversation context.'},
+];
+const EDGES=[
+  ['user','fe'],['fe','api'],['api','bedrock'],['api','kb'],['api','pricing'],
+  ['api','vis'],['vis','deploy'],['deploy','fe'],['api','mongo'],['cw','fe'],['cw','api'],
+];
+
+const diag=document.getElementById('adiag');
+const nEls={};
+NODES.forEach(n=>{
+  const el=document.createElement('div');
+  el.className=`a-node ${n.cls}`;
+  el.style.left=n.x+'px';el.style.top=n.y+'px';
+  el.innerHTML=`<span class="ni">${n.icon}</span>${n.label}<span class="nl">${n.sub}</span>`;
+  el.addEventListener('mouseenter',()=>{tip.innerHTML=`<strong>${n.label}</strong>${n.info}`;tip.classList.add('show')});
+  el.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+  el.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY-8)+'px'});
+  let drg=false,ox=0,oy=0;
+  el.addEventListener('mousedown',e=>{drg=true;ox=e.clientX-n.x;oy=e.clientY-n.y;el.style.transition='none';el.style.zIndex=50;e.preventDefault()});
+  document.addEventListener('mousemove',e=>{if(!drg)return;n.x=e.clientX-ox;n.y=e.clientY-oy;el.style.left=n.x+'px';el.style.top=n.y+'px';draw()});
+  document.addEventListener('mouseup',()=>{if(drg){drg=false;el.style.transition='';el.style.zIndex=''}});
+  diag.appendChild(el);nEls[n.id]={el,data:n};
+});
+const svgNS='http://www.w3.org/2000/svg';
+const svg=document.createElementNS(svgNS,'svg');
+svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1';
+diag.appendChild(svg);
+const df=document.createElementNS(svgNS,'defs');
+[['ar1','rgba(0,240,180,.65)'],['ar2','rgba(120,120,255,.28)']].forEach(([id,col])=>{
+  const m=document.createElementNS(svgNS,'marker');
+  m.setAttribute('id',id);m.setAttribute('markerWidth','8');m.setAttribute('markerHeight','8');
+  m.setAttribute('refX','6');m.setAttribute('refY','3');m.setAttribute('orient','auto');
+  const p=document.createElementNS(svgNS,'path');p.setAttribute('d','M0,0 L0,6 L8,3z');p.setAttribute('fill',col);
+  m.appendChild(p);df.appendChild(m);
+});
+svg.appendChild(df);
+const lns={};
+EDGES.forEach(([a,b])=>{
+  const l=document.createElementNS(svgNS,'line');
+  const mon=a==='cw'||b==='cw';
+  l.setAttribute('stroke',mon?'rgba(120,120,255,.22)':'rgba(0,240,180,.28)');
+  l.setAttribute('stroke-width',mon?'1':'1.5');
+  l.setAttribute('stroke-dasharray',mon?'4 5':'6 4');
+  l.setAttribute('marker-end',`url(#${mon?'ar2':'ar1'})`);
+  svg.appendChild(l);lns[`${a}-${b}`]=l;
+});
+function draw(){
+  EDGES.forEach(([a,b])=>{
+    const na=nEls[a].data,nb=nEls[b].data;
+    const ea=nEls[a].el,eb=nEls[b].el;
+    const ax=na.x+ea.offsetWidth/2,ay=na.y+ea.offsetHeight/2;
+    const bx=nb.x+eb.offsetWidth/2,by=nb.y+eb.offsetHeight/2;
+    const l=lns[`${a}-${b}`];
+    l.setAttribute('x1',ax);l.setAttribute('y1',ay);l.setAttribute('x2',bx);l.setAttribute('y2',by);
+  });
+}
+setTimeout(draw,60);window.addEventListener('resize',draw);
+let off=0;
+(function al(){off=(off-.22)%20;Object.values(lns).forEach(l=>l.style.strokeDashoffset=off);requestAnimationFrame(al)})();
+
+/* API INTEGRATION */
+async function generateArchitecture() {
+  const btn = document.getElementById('rbtn');
+  const bar = document.getElementById('rbar');
+  
+  if (btn.classList.contains('running')) return;
+  
+  // Get form values
+  const idea = document.getElementById('idea').value.trim();
+  const users = parseInt(document.getElementById('users').value);
+  const budget = document.getElementById('budget').value.trim();
+  
+  // Get selected features
+  const features = [];
+  document.querySelectorAll('.fcheck input:checked').forEach(checkbox => {
+    features.push(checkbox.value);
+  });
+  
+  // Validate required fields
+  if (!idea || !users) {
+    showError('Please fill in all required fields (Project Idea and Expected Users).');
+    return;
+  }
+  
+  // Start loading state
+  btn.classList.add('running');
+  btn.textContent = '⚡ PROCESSING...';
+  bar.style.width = '0%';
+  
+  // Hide all result panels
+  document.querySelectorAll('.oc').forEach(c => c.style.display = 'none');
+  document.getElementById('loading-state').style.display = 'block';
+  
+  // Animate progress bar
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + (Math.random() * 15 + 5), 90);
+    bar.style.width = progress + '%';
+  }, 200);
+  
+  try {
+    // Call the backend API
+    const response = await fetch('http://localhost:5000/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        idea: idea,
+        users: users,
+        budget: budget,
+        features: features
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to generate architecture');
+    }
+    
+    // Complete progress bar
+    clearInterval(progressInterval);
+    bar.style.width = '100%';
+    
+    // Hide loading, show results
+    document.getElementById('loading-state').style.display = 'none';
+    
+    // Display the results
+    displayResults(result.data);
+    
+    btn.classList.remove('running');
+    btn.textContent = '✅ ARCHITECTURE GENERATED';
+    
+  } catch (error) {
+    clearInterval(progressInterval);
+    console.error('Error:', error);
+    
+    let errorMessage = 'Failed to connect to the server. ';
+    
+    if (error.message.includes('CORS')) {
+      errorMessage = `CORS Error: Your browser blocked the request. 
+
+🔧 Quick Fix:
+1. Run 'npm install && npm start' in this folder
+2. Open http://localhost:3000 (not file://)
+3. Make sure backend is running on port 5000
+
+Or add CORS headers to your backend server.`;
+    } else if (error.message.includes('Failed to fetch')) {
+      errorMessage = `Network Error: Cannot reach the backend.
+
+🔧 Solutions:
+• Make sure backend is running on localhost:5000
+• Check if http://localhost:5000/generate is accessible
+• Try running: npm install && npm start`;
+    } else {
+      errorMessage = error.message || 'An unexpected error occurred.';
+    }
+    
+    showError(errorMessage);
+    btn.classList.remove('running');
+    btn.textContent = '⚡ GENERATE ARCHITECTURE';
+  }
+}
+
+function displayResults(data) {
+  // Display services
+  const servicesList = document.getElementById('services-list');
+  servicesList.innerHTML = '';
+  
+  data.aws_services.forEach(service => {
+    const serviceEl = document.createElement('div');
+    serviceEl.className = 'sr';
+    
+    // Determine badge class based on service type
+    let badgeClass = 'sc'; // default cyan
+    if (service.name.toLowerCase().includes('lambda')) badgeClass = 'sb2';
+    else if (service.name.toLowerCase().includes('s3')) badgeClass = 'sg';
+    else if (service.name.toLowerCase().includes('dynamodb')) badgeClass = 'sm';
+    else if (service.name.toLowerCase().includes('api gateway')) badgeClass = 'sgrn';
+    
+    serviceEl.innerHTML = `
+      <span class="sbadge ${badgeClass}">${service.name.split(' ').pop()}</span>
+      <div class="sdesc">
+        <strong>${service.name}</strong>
+        ${service.role}. ${service.justification}
+        <div style="margin-top:4px;font-size:0.7rem;opacity:0.7">${service.data_flow}</div>
+        <div style="margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--cyan)">
+          💰 ${service.estimated_monthly_cost}
+        </div>
+      </div>
+    `;
+    servicesList.appendChild(serviceEl);
+  });
+  
+  // Display Mermaid diagram
+  const diagramContainer = document.getElementById('mermaid-diagram');
+  diagramContainer.innerHTML = '';
+  
+  const mermaidDiv = document.createElement('div');
+  mermaidDiv.className = 'mermaid';
+  mermaidDiv.textContent = data.mermaid;
+  diagramContainer.appendChild(mermaidDiv);
+  
+  // Initialize Mermaid
+  mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { 
+    primaryColor: '#00f0b4',
+    primaryTextColor: '#eef0f8',
+    primaryBorderColor: '#00f0b4',
+    lineColor: '#5a6278',
+    secondaryColor: '#3d7fff',
+    tertiaryColor: '#ff3daa'
+  }});
+  
+  // Display cost breakdown
+  const costBreakdown = document.getElementById('cost-breakdown');
+  costBreakdown.innerHTML = `
+    <div class="cbig">${data.cost_breakdown.monthly_estimate}</div>
+    <div class="csub">Estimated monthly infrastructure cost</div>
+    <div class="crows">
+      ${data.cost_breakdown.per_service.map(service => {
+        const costNum = parseInt(service.cost.replace(/[^0-9]/g, ''));
+        const maxCost = 15000;
+        const width = Math.min((costNum / maxCost) * 100, 100);
+        const color = width > 60 ? 'var(--magenta)' : width > 30 ? 'var(--gold)' : 'var(--cyan)';
+        
+        return `
+          <div class="crow">
+            <div class="cn">${service.service}</div>
+            <div class="cbw">
+              <div class="cbar" style="width:0%;background:${color}"></div>
+            </div>
+            <div class="ca">${service.cost}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div class="ctip">${data.cost_breakdown.cost_notes}</div>
+  `;
+  
+  // Display implementation steps
+  const implSteps = document.getElementById('implementation-steps');
+  implSteps.innerHTML = '';
+  
+  data.implementation_steps.forEach(step => {
+    const stepEl = document.createElement('div');
+    stepEl.className = 'sr';
+    stepEl.innerHTML = `
+      <span class="sbadge sg">${step.duration}</span>
+      <div class="sdesc">
+        <strong>${step.phase}</strong>
+        <ul style="margin-top:8px;padding-left:16px">
+          ${step.tasks.map(task => `<li style="margin-bottom:4px">${task}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+    implSteps.appendChild(stepEl);
+  });
+  
+  // Show all result panels with animation
+  const panels = ['oc1', 'oc2', 'oc3', 'oc4'];
+  panels.forEach((panelId, index) => {
+    setTimeout(() => {
+      const panel = document.getElementById(panelId);
+      panel.style.display = 'block';
+      setTimeout(() => panel.classList.add('show'), 50);
+    }, index * 200);
+  });
+  
+  // Animate cost bars
+  setTimeout(() => {
+    document.querySelectorAll('.cbar').forEach(bar => {
+      const width = bar.parentElement.nextElementSibling.textContent;
+      const numericWidth = parseInt(width.replace(/[^0-9]/g, ''));
+      const maxCost = 15000;
+      const percentage = Math.min((numericWidth / maxCost) * 100, 100);
+      bar.style.width = percentage + '%';
+    });
+  }, 800);
+}
+
+function showError(message) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('error-message').textContent = message;
+  document.getElementById('error-state').style.display = 'block';
+}
+
+function resetForm() {
+  document.getElementById('error-state').style.display = 'none';
+  document.getElementById('rbtn').textContent = '⚡ GENERATE ARCHITECTURE';
+  document.getElementById('rbar').style.width = '0%';
+  document.querySelectorAll('.oc').forEach(c => {
+    c.style.display = 'none';
+    c.classList.remove('show');
+  });
+}
+</script>
+</body>
+</html>

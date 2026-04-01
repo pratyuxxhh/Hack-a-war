@@ -354,11 +354,11 @@ const AnimatedShaderHero = ({
 
           {/* Buttons */}
           {buttons && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10 animate-fade-in-up animation-delay-800">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center items-center mt-12 animate-fade-in-up animation-delay-800">
               {buttons.primary && (
                 <button
                   onClick={buttons.primary.onClick}
-                  className="px-8 py-4 bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-violet-500/25 cursor-pointer"
+                  className="min-w-[200px] px-10 py-4 bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 text-white rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-violet-500/30 cursor-pointer"
                 >
                   {buttons.primary.text}
                 </button>
@@ -366,7 +366,7 @@ const AnimatedShaderHero = ({
               {buttons.secondary && (
                 <button
                   onClick={buttons.secondary.onClick}
-                  className="px-8 py-4 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-300/30 hover:border-violet-300/50 text-violet-100 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
+                  className="min-w-[200px] px-10 py-4 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-300/30 hover:border-violet-300/50 text-violet-100 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 backdrop-blur-sm cursor-pointer"
                 >
                   {buttons.secondary.text}
                 </button>

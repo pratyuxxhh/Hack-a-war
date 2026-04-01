@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from 'lucide-react';
 
 const nodeColors = {
   ingestion: { fill: '#3B82F6', glow: 'rgba(59, 130, 246, 0.3)' },
@@ -25,21 +25,33 @@ const ArchitectureDiagram = ({ diagram }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const { nodes, edges } = diagram;
+  const nodes = Array.isArray(diagram?.nodes) ? diagram.nodes : [];
+  const edges = Array.isArray(diagram?.edges) ? diagram.edges : [];
+  const hasNodes = nodes.length > 0;
 
   // Calculate SVG viewBox based on nodes
   const padding = 60;
-  const minX = Math.min(...nodes.map((n) => n.x)) - padding;
-  const minY = Math.min(...nodes.map((n) => n.y)) - padding;
-  const maxX = Math.max(...nodes.map((n) => n.x)) + padding + 100;
-  const maxY = Math.max(...nodes.map((n) => n.y)) + padding + 40;
+  const minX = hasNodes ? Math.min(...nodes.map((n) => n.x)) - padding : 0;
+  const minY = hasNodes ? Math.min(...nodes.map((n) => n.y)) - padding : 0;
+  const maxX = hasNodes ? Math.max(...nodes.map((n) => n.x)) + padding + 100 : 800;
+  const maxY = hasNodes ? Math.max(...nodes.map((n) => n.y)) + padding + 40 : 420;
   const svgWidth = maxX - minX;
   const svgHeight = maxY - minY;
 
   const handleZoomIn = () => setZoom((z) => Math.min(z + 0.2, 3));
   const handleZoomOut = () => setZoom((z) => Math.max(z - 0.2, 0.5));
   const handleReset = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
+  const toggleFullscreen = async () => {
+    const container = containerRef.current;
+    if (!container || !document?.fullscreenEnabled) return;
+    if (!document.fullscreenElement) {
+      await container.requestFullscreen();
+      return;
+    }
+    await document.exitFullscreen();
+  };
 
   const handleWheel = useCallback((e) => {
     e.preventDefault();
@@ -66,6 +78,12 @@ const ArchitectureDiagram = ({ diagram }) => {
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleWheel);
   }, [handleWheel]);
+
+  useEffect(() => {
+    const onFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
 
   const getNodeById = (id) => nodes.find((n) => n.id === id);
 
@@ -98,18 +116,32 @@ const ArchitectureDiagram = ({ diagram }) => {
         >
           <Maximize2 className="w-4 h-4" />
         </button>
+        <div className="w-px h-4 bg-zinc-700" />
+        <button
+          onClick={toggleFullscreen}
+          className="p-1.5 text-zinc-400 hover:text-white rounded transition-colors cursor-pointer"
+          title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+        </button>
       </div>
 
       {/* Diagram container */}
       <div
         ref={containerRef}
         className="w-full bg-zinc-950/50 rounded-xl border border-zinc-800/50 overflow-hidden"
-        style={{ height: '360px', cursor: isDragging ? 'grabbing' : 'grab' }}
+        style={{ height: isFullscreen ? '100vh' : '360px', cursor: isDragging ? 'grabbing' : 'grab' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
+        {!hasNodes && (
+          <div className="h-full flex items-center justify-center text-zinc-500 text-sm">
+            Diagram is unavailable for this response.
+          </div>
+        )}
+        {hasNodes && (
         <svg
           width="100%"
           height="100%"
@@ -256,6 +288,7 @@ const ArchitectureDiagram = ({ diagram }) => {
             );
           })}
         </svg>
+        )}
       </div>
 
       {/* Zoom hint */}
