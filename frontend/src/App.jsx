@@ -19,13 +19,13 @@ const HomePage = ({ onSubmit }) => {
 };
 
 function App() {
-  const { isLoading, progress, results, generateArchitecture, reset } = useArchitecture();
+  const { isLoading, progress, results, error, generateArchitecture, reset } = useArchitecture();
   const [currentView, setCurrentView] = useState('home'); // 'home' | 'loading' | 'results'
 
-  const handleSubmit = (prompt) => {
+  const handleSubmit = (formData) => {
     window.scrollTo(0, 0);
     setCurrentView('loading');
-    generateArchitecture(prompt);
+    generateArchitecture(formData);
   };
 
   // Transition to results when loading completes
@@ -36,6 +36,13 @@ function App() {
       setCurrentView('results');
     }
   }, [isLoading, results, currentView]);
+
+  React.useEffect(() => {
+    if (!isLoading && error && currentView === 'loading') {
+      alert(`Failed to generate architecture: ${error}`);
+      setCurrentView('home');
+    }
+  }, [isLoading, error, currentView]);
 
   const handleRefine = () => {
     window.scrollTo(0, 0);

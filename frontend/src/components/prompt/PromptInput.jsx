@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Send, Sparkles, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
 import UploadButton from './UploadButton';
@@ -15,19 +14,47 @@ const examplePrompts = [
 
 const PromptInput = ({ onSubmit }) => {
   const [prompt, setPrompt] = useState('');
-  const navigate = useNavigate();
+  const [users, setUsers] = useState('');
+  const [budget, setBudget] = useState('');
+  const [features, setFeatures] = useState([
+    'real-time collaboration',
+    'user authentication',
+    'project file storage',
+  ]);
   const maxChars = 1000;
+  const featureOptions = [
+    'real-time collaboration',
+    'user authentication',
+    'project file storage',
+    'code compilation in the background',
+    'analytics dashboard',
+    'api integration',
+  ];
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (prompt.trim().length === 0) return;
     if (onSubmit) {
-      onSubmit(prompt.trim());
+      onSubmit({
+        prompt: prompt.trim(),
+        idea: prompt.trim(),
+        users: users ? Number(users) : null,
+        budget: budget.trim(),
+        features,
+      });
     }
   };
 
   const handleExampleClick = (example) => {
     setPrompt(example);
+    setUsers('100000');
+    setBudget('$3000/mo');
+  };
+
+  const handleFeatureChange = (feature) => {
+    setFeatures((prev) =>
+      prev.includes(feature) ? prev.filter((f) => f !== feature) : [...prev, feature]
+    );
   };
 
   return (
@@ -69,9 +96,50 @@ const PromptInput = ({ onSubmit }) => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value.slice(0, maxChars))}
               placeholder="e.g., Build a real-time analytics platform that processes 1 million events per day with dashboards and alerts..."
-              rows={5}
+              rows={4}
               className="w-full bg-transparent text-white placeholder-zinc-500 text-lg p-5 pb-2 resize-none focus:outline-none leading-relaxed"
             />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 px-5 pb-2">
+              <input
+                type="number"
+                min="1"
+                value={users}
+                onChange={(e) => setUsers(e.target.value)}
+                placeholder="Expected users (e.g. 100000)"
+                className="w-full rounded-lg border border-zinc-700/60 bg-zinc-900/60 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-violet-500/60"
+              />
+              <input
+                type="text"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                placeholder="Monthly budget (optional)"
+                className="w-full rounded-lg border border-zinc-700/60 bg-zinc-900/60 px-3 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-violet-500/60"
+              />
+            </div>
+
+            <div className="px-5 pb-3">
+              <p className="text-[11px] uppercase tracking-wider text-zinc-500 mb-2">Key features</p>
+              <div className="flex flex-wrap gap-2">
+                {featureOptions.map((feature) => {
+                  const selected = features.includes(feature);
+                  return (
+                    <button
+                      key={feature}
+                      type="button"
+                      onClick={() => handleFeatureChange(feature)}
+                      className={`px-3 py-1.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+                        selected
+                          ? 'bg-violet-500/20 border-violet-500/40 text-violet-200'
+                          : 'bg-zinc-900/50 border-zinc-700/50 text-zinc-400 hover:border-zinc-500'
+                      }`}
+                    >
+                      {feature}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Bottom bar inside textarea box */}
             <div className="flex items-center justify-between px-5 py-3">
@@ -80,7 +148,7 @@ const PromptInput = ({ onSubmit }) => {
               </span>
               <button
                 type="submit"
-                disabled={prompt.trim().length === 0}
+                disabled={prompt.trim().length === 0 || !users}
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-purple-500 hover:from-violet-700 hover:to-purple-600 disabled:from-zinc-700 disabled:to-zinc-600 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-violet-500/25 disabled:hover:scale-100 disabled:hover:shadow-none cursor-pointer"
               >
                 <Send className="w-4 h-4" />

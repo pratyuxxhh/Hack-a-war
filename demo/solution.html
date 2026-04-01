@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArchitectAI — The Solution · Team PAAN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03050d;--card:rgba(255,255,255,.033);--border:rgba(255,255,255,.07);
+  --cyan:#00f0b4;--blue:#3d7fff;--magenta:#ff3daa;--gold:#ffd060;
+  --text:#eef0f8;--muted:#5a6278;--muted2:#8892a8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+#cur{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--magenta);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#cur2{position:fixed;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,61,170,.3);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s,top .12s}
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:900}
+
+nav{position:fixed;top:0;inset-x:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;background:rgba(3,5,13,.72);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.1em;background:linear-gradient(110deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.back{display:flex;align-items:center;gap:8px;color:var(--muted2);text-decoration:none;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;cursor:none}
+.back:hover{color:var(--text)}
+
+/* PAGE HEADER */
+.phdr{padding:140px 56px 80px;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.phdr-l{}
+.sl{font-family:'JetBrains Mono',monospace;font-size:.67rem;color:var(--magenta);letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px}
+.st{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5.5rem);letter-spacing:.03em;line-height:.95;animation:fu .8s ease both}
+.st .a{color:var(--cyan)}
+.ss{font-size:.97rem;color:var(--muted2);max-width:460px;line-height:1.78;margin-top:12px;animation:fu .8s ease .1s both}
+@keyframes fu{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* TERMINAL */
+.terminal{background:rgba(5,9,18,.95);border:1px solid var(--border);border-radius:16px;overflow:hidden;animation:fu .8s ease .2s both;box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 60px rgba(0,240,180,.04)}
+.tbar{background:rgba(10,17,32,.9);padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.dr{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.dy{width:10px;height:10px;border-radius:50%;background:#febc2e}
+.dg{width:10px;height:10px;border-radius:50%;background:#28c840}
+.ttitle{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-left:auto}
+.tbody{padding:20px;font-family:'JetBrains Mono',monospace;font-size:.76rem;min-height:240px;max-height:340px;overflow-y:auto}
+.tl{margin:5px 0;line-height:1.65}
+.tblk{display:inline-block;width:8px;height:13px;background:var(--magenta);animation:blk 1s step-end infinite;vertical-align:middle}
+@keyframes blk{0%,100%{opacity:1}50%{opacity:0}}
+
+/* SECTIONS */
+.sec{padding:80px 56px;max-width:1280px;margin:0 auto}
+
+/* TECH STACK */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 22px;transition:all .3s;cursor:none;position:relative;overflow:hidden}
+.tc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:linear-gradient(135deg,rgba(0,240,180,.05),transparent)}
+.tc:hover::before{opacity:1}
+.tc:hover{border-color:rgba(0,240,180,.18);transform:translateY(-4px)}
+.tcat{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.tc h4{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.06em;margin-bottom:14px}
+.titems{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;justify-content:space-between}
+.ti span:first-child{font-size:.8rem;color:var(--text)}
+.ttag{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:2px 8px;border-radius:4px}
+.tag-c{background:rgba(0,240,180,.09);color:var(--cyan);border:1px solid rgba(0,240,180,.16)}
+.tag-b{background:rgba(61,127,255,.09);color:#80aaff;border:1px solid rgba(61,127,255,.16)}
+.tag-g{background:rgba(255,208,96,.08);color:var(--gold);border:1px solid rgba(255,208,96,.15)}
+.tag-o{background:rgba(255,100,50,.08);color:#ff8060;border:1px solid rgba(255,100,50,.15)}
+
+/* AUDIT ENGINE */
+.audit-sec{padding:80px 56px;max-width:1280px;margin:0 auto}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:52px}
+.acard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .3s;cursor:none}
+.acard:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.1)}
+.ascore-n{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;line-height:1;letter-spacing:.02em}
+.asg{background:linear-gradient(110deg,var(--cyan),#00c48c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.asw{background:linear-gradient(110deg,var(--gold),#ff9020);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.asl{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:4px;letter-spacing:.05em}
+.aitems{margin-top:22px}
+.ai{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.81rem}
+.ai .aico{flex-shrink:0;font-size:.95rem;margin-top:1px}
+.ai .atxt{color:var(--muted2);line-height:1.55}
+.ai .atxt strong{color:var(--text);display:block;margin-bottom:1px;font-size:.82rem}
+
+.recs-card{grid-column:1/-1;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px}
+.recs-card h4{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;margin-bottom:4px}
+.recs-card p{font-size:.82rem;color:var(--muted2);margin-bottom:0}
+.recs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.rec{background:rgba(3,5,13,.55);border:1px solid var(--border);border-radius:12px;padding:20px}
+.rec .ri{font-size:1.4rem;margin-bottom:10px}
+.rec h5{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.05em;margin-bottom:7px}
+.rec p{font-size:.77rem;color:var(--muted2);line-height:1.55}
+.rec .rs{margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--cyan)}
+
+/* AWS SERVICES */
+.aws-sec{padding:80px 56px;max-width:1280px;margin:0 auto;border-top:1px solid var(--border)}
+.aws-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:50px}
+.awsc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 18px;transition:all .3s;cursor:none}
+.awsc:hover{border-color:rgba(255,153,0,.3);transform:translateY(-4px)}
+.awsl{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,rgba(255,153,0,.18),rgba(255,100,0,.08));border:1px solid rgba(255,153,0,.18);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:14px}
+.awsc h5{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:.05em;margin-bottom:7px}
+.awsc p{font-size:.76rem;color:var(--muted2);line-height:1.58}
+.awsy{margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:#ffb84d;letter-spacing:.03em}
+
+/* TIMELINE */
+.tl-sec{padding:80px 56px;max-width:1280px;margin:0 auto;border-top:1px solid var(--border)}
+.tl-row{display:flex;gap:0;margin-top:52px;position:relative}
+.tl-row::before{content:'';position:absolute;top:28px;left:28px;right:28px;height:1px;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--magenta));opacity:.3}
+.tl-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;z-index:1}
+.tl-num{width:56px;height:56px;border-radius:50%;background:var(--bg);border:2px solid;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.4rem}
+.tl-step:nth-child(1) .tl-num{border-color:var(--cyan);color:var(--cyan)}
+.tl-step:nth-child(2) .tl-num{border-color:var(--blue);color:var(--blue)}
+.tl-step:nth-child(3) .tl-num{border-color:#8855ff;color:#8855ff}
+.tl-step:nth-child(4) .tl-num{border-color:var(--gold);color:var(--gold)}
+.tl-step:nth-child(5) .tl-num{border-color:var(--magenta);color:var(--magenta)}
+.tl-step:nth-child(6) .tl-num{border-color:var(--cyan);color:var(--cyan)}
+.tl-body{text-align:center;padding:0 8px}
+.tl-body h5{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:.05em;margin-bottom:6px}
+.tl-body p{font-size:.74rem;color:var(--muted2);line-height:1.55}
+.tl-hr{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:4px;letter-spacing:.06em}
+
+/* TEAM */
+.team-sec{padding:80px 56px;max-width:1280px;margin:0 auto;border-top:1px solid var(--border);text-align:center}
+.team-grid{display:flex;justify-content:center;gap:24px;margin-top:48px;flex-wrap:wrap}
+.tmem{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px 28px;min-width:160px;transition:all .3s;cursor:none;position:relative;overflow:hidden}
+.tmem::after{content:'';position:absolute;bottom:0;inset-x:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--blue));transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.tmem:hover::after{transform:scaleX(1)}
+.tmem:hover{transform:translateY(-5px);border-color:rgba(0,240,180,.18)}
+.tmem .av{font-size:2.2rem;margin-bottom:12px}
+.tmem h5{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.06em;margin-bottom:4px}
+.tmem p{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.04em}
+
+/* CTA */
+.cta{padding:90px 56px;text-align:center;position:relative;overflow:hidden;border-top:1px solid var(--border)}
+.cta-g{position:absolute;inset:0;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,61,170,.05),transparent);pointer-events:none}
+.cta h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,7.5rem);letter-spacing:.03em;line-height:.9;position:relative;z-index:1}
+.cta h2 span{background:linear-gradient(110deg,var(--magenta),var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cta p{color:var(--muted2);margin:16px auto 0;max-width:420px;position:relative;z-index:1;line-height:1.7}
+.cbtns{display:flex;gap:14px;justify-content:center;margin-top:36px;position:relative;z-index:1}
+.bp{background:linear-gradient(110deg,var(--cyan),var(--blue));color:#000;padding:14px 36px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;text-decoration:none;transition:all .25s;cursor:none;box-shadow:0 0 28px rgba(0,240,180,.15)}
+.bp:hover{box-shadow:0 0 56px rgba(0,240,180,.32);transform:translateY(-3px)}
+.bg{background:transparent;border:1px solid var(--border);color:var(--text);padding:14px 36px;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;text-decoration:none;transition:all .25s;cursor:none}
+.bg:hover{border-color:rgba(0,240,180,.25)}
+
+footer{padding:36px 56px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ftl{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;background:linear-gradient(110deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ftt{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted)}
+.awsp{display:flex;align-items:center;gap:6px;background:rgba(255,153,0,.07);border:1px solid rgba(255,153,0,.18);padding:6px 14px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.63rem;color:#ffb84d}
+
+.rv{opacity:0;transform:translateY(32px);transition:opacity .72s ease,transform .72s ease}
+.rv.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  nav{padding:14px 20px}
+  .phdr{grid-template-columns:1fr;padding:110px 20px 60px;gap:40px}
+  .sec,.audit-sec,.aws-sec,.tl-sec,.team-sec,.cta{padding:60px 20px}
+  .tgrid{grid-template-columns:1fr}
+  .agrid{grid-template-columns:1fr}
+  .recs{grid-template-columns:1fr}
+  .aws-grid{grid-template-columns:1fr 1fr}
+  .tl-row{flex-direction:column;gap:24px}
+  .tl-row::before{display:none}
+  footer{padding:24px 20px;flex-direction:column;gap:12px;text-align:center}
+}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<nav>
+  <a href="index.html" class="logo">ArchitectAI</a>
+  <a href="index.html" class="back">← Back to Home</a>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="phdr">
+  <div class="phdr-l">
+    <div class="sl">// The Solution — Deep Dive</div>
+    <h2 class="st">UNDER<br>THE<br><span class="a">HOOD</span></h2>
+    <p class="ss">Tech stack, audit engine, AWS service justifications, 24-hour build timeline, and the team behind ArchitectAI.</p>
+  </div>
+  <div class="terminal">
+    <div class="tbar"><div class="dr"></div><div class="dy"></div><div class="dg"></div><span class="ttitle">architect-ai — live system</span></div>
+    <div class="tbody" id="term"></div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<section class="sec" id="tech">
+  <div class="sl rv">// Tech Stack</div>
+  <h2 class="st rv" style="transition-delay:.1s">BUILT ON<br><span class="a">AWS-FIRST</span><br>PRINCIPLES</h2>
+  <p style="font-size:.97rem;color:var(--muted2);max-width:500px;line-height:1.78;margin-top:12px" class="rv" style="transition-delay:.15s">Every service chosen with purpose. Scalable, production-ready, and AWS-native throughout.</p>
+  <div class="tgrid rv" style="transition-delay:.2s">
+    <div class="tc"><div class="tcat" style="color:var(--gold)">🧠 AI Core</div><h4>Intelligence Layer</h4><div class="titems"><div class="ti"><span>Amazon Bedrock</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Claude / Titan LLMs</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Prompt Engineering</span><span class="ttag tag-c">Custom</span></div><div class="ti"><span>RAG Architecture</span><span class="ttag tag-g">AWS KB</span></div></div></div>
+    <div class="tc"><div class="tcat" style="color:var(--blue)">⚙️ Backend</div><h4>API & Processing</h4><div class="titems"><div class="ti"><span>FastAPI (Python)</span><span class="ttag tag-c">Core</span></div><div class="ti"><span>REST API Gateway</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>AWS Pricing API</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Lambda Functions</span><span class="ttag tag-g">AWS</span></div></div></div>
+    <div class="tc"><div class="tcat" style="color:var(--cyan)">🌐 Frontend</div><h4>User Interface</h4><div class="titems"><div class="ti"><span>React.js</span><span class="ttag tag-b">UI</span></div><div class="ti"><span>Mermaid.js</span><span class="ttag tag-c">Diagrams</span></div><div class="ti"><span>HTML / CSS / JS</span><span class="ttag tag-c">Web</span></div><div class="ti"><span>S3 + CloudFront</span><span class="ttag tag-g">AWS</span></div></div></div>
+    <div class="tc"><div class="tcat" style="color:var(--magenta)">📚 Knowledge</div><h4>Reference Base</h4><div class="titems"><div class="ti"><span>AWS Architecture Center</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Service Documentation</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Well-Architected Framework</span><span class="ttag tag-g">AWS</span></div></div></div>
+    <div class="tc"><div class="tcat" style="color:var(--gold)">☁️ Deployment</div><h4>Infrastructure</h4><div class="titems"><div class="ti"><span>Amazon EC2 / Beanstalk</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Amazon S3</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>Amazon CloudFront</span><span class="ttag tag-g">AWS</span></div><div class="ti"><span>AWS IAM</span><span class="ttag tag-g">AWS</span></div></div></div>
+    <div class="tc"><div class="tcat" style="color:var(--cyan)">📊 Visualization</div><h4>Diagram Engine</h4><div class="titems"><div class="ti"><span>Mermaid.js</span><span class="ttag tag-c">Open</span></div><div class="ti"><span>D2 Syntax (alt)</span><span class="ttag tag-c">Alt</span></div><div class="ti"><span>LLM-native generation</span><span class="ttag tag-b">AI</span></div><div class="ti"><span>MongoDB (data layer)</span><span class="ttag tag-o">DB</span></div></div></div>
+  </div>
+</section>
+
+<!-- AUDIT ENGINE -->
+<section class="audit-sec" id="audit">
+  <div class="sl rv">// Audit Engine Demo</div>
+  <h2 class="st rv" style="transition-delay:.1s">ANALYZE &<br><span class="a">IMPROVE</span></h2>
+  <p style="font-size:.97rem;color:var(--muted2);max-width:500px;line-height:1.78;margin-top:12px" class="rv" style="transition-delay:.15s">Paste your existing architecture — get instant AI scoring, issue detection, and specific recommendations.</p>
+  <div class="agrid rv" style="transition-delay:.2s">
+    <div class="acard">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.06em;margin-bottom:6px">ARCHITECTURE HEALTH SCORE</div>
+      <div class="ascore-n asg">78<span style="font-size:1.2rem;-webkit-text-fill-color:rgba(0,240,180,.4)">/100</span></div>
+      <div class="asl">Overall Health — Good with optimizations available</div>
+      <div class="aitems">
+        <div class="ai"><span class="aico">✅</span><div class="atxt"><strong>Correct service selection</strong>Kinesis + Lambda is well-suited for this event volume and latency requirement.</div></div>
+        <div class="ai"><span class="aico">✅</span><div class="atxt"><strong>Separation of concerns</strong>Data lake (S3) and warehouse (Redshift) correctly separated for analytics workloads.</div></div>
+        <div class="ai"><span class="aico">⚠️</span><div class="atxt"><strong>No dead-letter queue</strong>Lambda errors could silently drop events. Add SQS DLQ immediately.</div></div>
+        <div class="ai"><span class="aico">⚠️</span><div class="atxt"><strong>Missing multi-AZ redundancy</strong>Single-AZ setup risks downtime. Add cross-AZ replication for production SLAs.</div></div>
+      </div>
+    </div>
+    <div class="acard">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.06em;margin-bottom:6px">COST EFFICIENCY SCORE</div>
+      <div class="ascore-n asw">62<span style="font-size:1.2rem;-webkit-text-fill-color:rgba(255,208,96,.35)">/100</span></div>
+      <div class="asl">Moderate — Significant savings identified</div>
+      <div class="aitems">
+        <div class="ai"><span class="aico">💡</span><div class="atxt"><strong>Switch to Redshift Serverless</strong>Variable workloads benefit from auto-scaling compute → save ~$400/mo</div></div>
+        <div class="ai"><span class="aico">💡</span><div class="atxt"><strong>S3 Intelligent-Tiering</strong>Enable for event data older than 30 days → ~30% storage cost reduction</div></div>
+        <div class="ai"><span class="aico">💡</span><div class="atxt"><strong>Reserved Kinesis shards</strong>Commit 1-year on base shards → ~40% discount on predictable throughput</div></div>
+        <div class="ai"><span class="aico">✅</span><div class="atxt"><strong>Lambda pricing is optimal</strong>Pay-per-execution is correct for bursty ingestion patterns at this scale.</div></div>
+      </div>
+    </div>
+    <div class="recs-card">
+      <h4>AI Recommendations</h4>
+      <p>Apply these changes before going to production to optimize reliability and cut monthly costs.</p>
+      <div class="recs">
+        <div class="rec"><div class="ri">🔁</div><h5>Add SQS Dead Letter Queue</h5><p>Capture all failed Lambda events. No data silently lost in a production pipeline at this scale.</p><div class="rs">Impact: Critical reliability · ~$5/mo cost</div></div>
+        <div class="rec"><div class="ri">⚡</div><h5>Redshift Serverless</h5><p>Auto-scales compute to match query demand. Eliminates idle provisioned cluster cost during off-peak hours.</p><div class="rs">💰 Save ~$400/mo</div></div>
+        <div class="rec"><div class="ri">🌐</div><h5>Multi-AZ Replication</h5><p>Add cross-AZ failover for Kinesis and Redshift. Required for 99.9%+ uptime SLAs in production.</p><div class="rs">Impact: Critical resilience · ~$120/mo cost</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AWS SERVICES -->
+<div class="aws-sec" id="aws">
+  <div class="sl rv">// AWS Services Deep Dive</div>
+  <h2 class="st rv" style="transition-delay:.1s">CORE AWS<br><span class="a">SERVICES</span></h2>
+  <p style="font-size:.97rem;color:var(--muted2);max-width:500px;line-height:1.78;margin-top:12px" class="rv" style="transition-delay:.15s">Every component is AWS-native — giving us reliability, scale, and live pricing data for production-grade recommendations.</p>
+  <div class="aws-grid rv" style="transition-delay:.2s">
+    <div class="awsc"><div class="awsl">🧠</div><h5>Amazon Bedrock</h5><p>LLM backbone. Claude / Titan models reason over requirements to produce expert-level architecture blueprints.</p><div class="awsy">→ Core AI engine</div></div>
+    <div class="awsc"><div class="awsl">💰</div><h5>AWS Pricing API</h5><p>Real-time pricing for every service. Powers accurate monthly cost breakdowns — no guesswork, no spreadsheets.</p><div class="awsy">→ Live cost data</div></div>
+    <div class="awsc"><div class="awsl">📚</div><h5>Bedrock Knowledge Base</h5><p>Indexes AWS Architecture Center and Well-Architected Framework for context-aware, best-practice recommendations.</p><div class="awsy">→ RAG architecture</div></div>
+    <div class="awsc"><div class="awsl">☁️</div><h5>S3 + CloudFront</h5><p>Frontend on S3 with CloudFront CDN for global low-latency delivery. Infinitely scalable static hosting.</p><div class="awsy">→ Frontend hosting</div></div>
+    <div class="awsc"><div class="awsl">⚙️</div><h5>EC2 / Elastic Beanstalk</h5><p>FastAPI backend on managed EC2 via Beanstalk — auto-scaling, load balancing, zero ops overhead.</p><div class="awsy">→ Backend compute</div></div>
+    <div class="awsc"><div class="awsl">🔒</div><h5>AWS IAM</h5><p>Least-privilege access control across all service-to-service communication. Bedrock, S3, and API Gateway fully secured.</p><div class="awsy">→ Security & access</div></div>
+    <div class="awsc"><div class="awsl">⚡</div><h5>API Gateway</h5><p>Managed endpoint layer between frontend and FastAPI. Handles auth, rate limiting, and routing at scale.</p><div class="awsy">→ API management</div></div>
+    <div class="awsc"><div class="awsl">📊</div><h5>CloudWatch</h5><p>End-to-end observability — latency, error rates, token usage, and architecture generation quality metrics.</p><div class="awsy">→ Monitoring & logs</div></div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="tl-sec" id="timeline">
+  <div class="sl rv">// Build Timeline</div>
+  <h2 class="st rv" style="transition-delay:.1s">24-HOUR<br><span class="a">SPRINT</span></h2>
+  <div class="tl-row rv" style="transition-delay:.2s">
+    <div class="tl-step"><div class="tl-num">2</div><div class="tl-body"><div class="tl-hr">HR 0–2</div><h5>Planning</h5><p>Scope freeze, system design, task parallelization</p></div></div>
+    <div class="tl-step"><div class="tl-num">6</div><div class="tl-body"><div class="tl-hr">HR 2–6</div><h5>Foundation</h5><p>Bedrock setup, backend scaffolding, UI skeleton</p></div></div>
+    <div class="tl-step"><div class="tl-num">10</div><div class="tl-body"><div class="tl-hr">HR 6–10</div><h5>Integration</h5><p>End-to-end pipeline, structured outputs stabilized</p></div></div>
+    <div class="tl-step"><div class="tl-num">16</div><div class="tl-body"><div class="tl-hr">HR 10–16</div><h5>Features</h5><p>Multi-arch generation, diagrams + cost estimation</p></div></div>
+    <div class="tl-step"><div class="tl-num">20</div><div class="tl-body"><div class="tl-hr">HR 16–20</div><h5>Differentiator</h5><p>Architecture audit engine, optimization & critique</p></div></div>
+    <div class="tl-step"><div class="tl-num">24</div><div class="tl-body"><div class="tl-hr">HR 20–24</div><h5>Polish & Demo</h5><p>UI refinement, demo scenarios, fallback prep</p></div></div>
+  </div>
+</div>
+
+<!-- TEAM -->
+<div class="team-sec" id="team">
+  <div class="sl rv" style="justify-content:center">// The Team</div>
+  <h2 class="st rv" style="transition-delay:.1s">TEAM<br><span class="a">PAAN</span></h2>
+  <div class="team-grid rv" style="transition-delay:.2s">
+    <div class="tmem"><div class="av">🧑‍💻</div><h5>Pratyush Parashar</h5><p>1MS24CS131</p></div>
+    <div class="tmem"><div class="av">👨‍💻</div><h5>Ansh Singh</h5><p>1MS24IS025</p></div>
+    <div class="tmem"><div class="av">🧑‍🎨</div><h5>Adrish Chatterjee</h5><p>1MS24IS009</p></div>
+    <div class="tmem"><div class="av">👩‍🔬</div><h5>Nakshtra Agrawal</h5><p>1MS24IS071</p></div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-g"></div>
+  <h2>READY TO<br><span>BUILD</span></h2>
+  <p>Go back to the main page and try the interactive demo — see the AI architect your system in real time.</p>
+  <div class="cbtns">
+    <a href="index.html#demo" class="bp">Try the Demo →</a>
+    <a href="index.html" class="bg">← Back Home</a>
+  </div>
+</div>
+
+<footer>
+  <div class="ftl">ArchitectAI</div>
+  <div class="ftt">Team PAAN · AWS Hackathon 2025 · Coding Agents</div>
+  <div class="awsp">☁️ Powered by Amazon Bedrock</div>
+</footer>
+
+<script>
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function l(){rx+=(mx-rx)*.13;ry+=(my-ry)*.13;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(l)})();
+
+document.querySelectorAll('.rv').forEach(el=>{
+  new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('on')},{threshold:.08}).observe(el);
+});
+
+/* TERMINAL */
+const lines=[
+  {t:'> architect-ai init --mode production',c:'#00f0b4'},
+  {t:'  ✓ Amazon Bedrock connected (Claude 3)',c:'#7ddd9a'},
+  {t:'  ✓ AWS Pricing API authenticated',c:'#7ddd9a'},
+  {t:'  ✓ Knowledge Base indexed (12,847 docs)',c:'#7ddd9a'},
+  {t:'  ✓ Mermaid renderer initialized',c:'#7ddd9a'},
+  {t:'',c:''},
+  {t:'> architect-ai generate',c:'#00f0b4'},
+  {t:'  Prompt: "Real-time analytics 10M events/day"',c:'#8892a8'},
+  {t:'',c:''},
+  {t:'  [1/5] Parsing requirements...',c:'#8892a8'},
+  {t:'  [2/5] Querying knowledge base...',c:'#8892a8'},
+  {t:'  [3/5] Selecting optimal services...',c:'#8892a8'},
+  {t:'  [4/5] Fetching live AWS pricing...',c:'#8892a8'},
+  {t:'  [5/5] Generating Mermaid diagram...',c:'#8892a8'},
+  {t:'',c:''},
+  {t:'  ✅ Architecture generated in 3.1s',c:'#00f0b4'},
+  {t:'  Services: 7 · Est. Cost: $2,340/mo',c:'#00f0b4'},
+  {t:'  Diagram: analytics_platform.mmd',c:'#00f0b4'},
+  {t:'',c:''},
+  {t:'> _',c:'#ff3daa'},
+];
+const term=document.getElementById('term');
+let li=0,ci=0,cur_txt='';
+const typed=document.createElement('div');
+typed.className='tl';
+typed.style.cssText='font-size:.76rem;line-height:1.65';
+term.appendChild(typed);
+
+function type(){
+  if(li>=lines.length)return;
+  const line=lines[li];
+  if(ci<line.t.length){
+    cur_txt+=line.t[ci];
+    typed.innerHTML=`<span style="color:${line.c||'#8892a8'}">${cur_txt}</span><span class="tblk"></span>`;
+    ci++;
+    setTimeout(type,line.t.startsWith('  ')?12:20);
+  } else {
+    const done=document.createElement('div');
+    done.className='tl';
+    done.style.cssText='font-size:.76rem;line-height:1.65';
+    done.innerHTML=`<span style="color:${line.c||'#8892a8'}">${line.t||'&nbsp;'}</span>`;
+    term.insertBefore(done,typed);
+    cur_txt='';typed.innerHTML='<span class="tblk"></span>';
+    li++;ci=0;
+    term.scrollTop=term.scrollHeight;
+    setTimeout(type,line.t===''?60:100);
+  }
+}
+setTimeout(type,600);
+</script>
+</body>
+</html>
