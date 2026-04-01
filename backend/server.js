@@ -12,7 +12,8 @@ const app = express();
 
 app.use(cors({
   origin: [
-    "http://localhost:5173","http://localhost:5174",
+    "http://localhost:5173",
+    "http://localhost:5174",
     "http://localhost:3000",
     "http://localhost:5000",
     "http://localhost:5051",
@@ -143,6 +144,145 @@ function sanitizeMermaid(raw) {
     .replace(/\n{3,}/g, "\n\n")
     .replace(/-->[^\S\n]*\|([^|]+)\|/g, "-->|$1|")
     .trim();
+}
+
+function parseMoneyRange(text) {
+  const nums = String(text || "")
+    .match(/\d[\d,]*/g);
+  if (!nums || nums.length === 0) return null;
+  const values = nums.map((n) => Number.parseInt(n.replace(/,/g, ""), 10)).filter(Number.isFinite);
+  if (!values.length) return null;
+  const min = values[0];
+  const max = values.length > 1 ? values[values.length - 1] : values[0];
+  return { min, max };
+}
+
+function formatUsdRange(min, max, withPerMonth = false) {
+  const fmt = (n) => `$${Math.max(0, Math.round(n)).toLocaleString()}`;
+  const base = `${fmt(min)} - ${fmt(max)}`;
+  return withPerMonth ? `${base}/month` : base;
+}
+
+function applyBudgetCap(data, budgetInput) {
+  const budgetRange = parseMoneyRange(budgetInput);
+  const budgetCap = budgetRange?.max;
+  if (!budgetCap || !data?.cost_breakdown?.monthly_estimate) return data;
+
+  const monthlyRange = parseMoneyRange(data.cost_breakdown.monthly_estimate);
+  if (!monthlyRange || monthlyRange.max <= budgetCap) return data;
+
+  const scale = budgetCap / monthlyRange.max;
+  const nextMin = Math.max(0, Math.round(monthlyRange.min * scale));
+  const nextMax = Math.max(nextMin, Math.round(monthlyRange.max * scale));
+  data.cost_breakdown.monthly_estimate = formatUsdRange(nextMin, nextMax, true);
+
+  if (Array.isArray(data.cost_breakdown.per_service)) {
+    data.cost_breakdown.per_service = data.cost_breakdown.per_service.map((row) => {
+      const rowRange = parseMoneyRange(row?.cost);
+      if (!rowRange) return row;
+      const rowMin = Math.max(0, Math.round(rowRange.min * scale));
+      const rowMax = Math.max(rowMin, Math.round(rowRange.max * scale));
+      return { ...row, cost: formatUsdRange(rowMin, rowMax, false) };
+    });
+  }
+
+  const existingNotes = data.cost_breakdown.cost_notes || "";
+  const budgetNote = `Adjusted to fit stated budget cap of $${budgetCap.toLocaleString()}/month.`;
+  data.cost_breakdown.cost_notes = existingNotes
+    ? `${existingNotes} ${budgetNote}`
+    : budgetNote;
+  return data;
+}
+
+function extractScaleTier(analysisText) {
+  const match = String(analysisText || "").match(/SCALE:\s*([a-z_]+)/i);
+  return (match?.[1] || "growth").toLowerCase();
+}
+
+function extractServicesFromStep2(step2Text) {
+  const lines = String(step2Text || "").split("\n");
+  const services = [];
+  let current = null;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (line.startsWith("SERVICE:")) {
+      if (current?.name) services.push(current);
+      current = { name: line.replace("SERVICE:", "").trim() };
+    } else if (line.startsWith("ROLE:") && current) {
+      current.role = line.replace("ROLE:", "").trim();
+    } else if (line.startsWith("JUSTIFICATION:") && current) {
+      current.justification = line.replace("JUSTIFICATION:", "").trim();
+    } else if (line.startsWith("DATA_FLOW:") && current) {
+      current.data_flow = line.replace("DATA_FLOW:", "").trim();
+    }
+  }
+  if (current?.name) services.push(current);
+
+  return services.map((s) => ({
+    name: s.name,
+    role: s.role || "AWS service role",
+    justification: s.justification || "Included by architecture strategy",
+    data_flow: s.data_flow || "System data enters and processed output leaves",
+    estimated_monthly_cost: "$10 - $100",
+  }));
+}
+
+function scaleRangeForTier(scaleTier) {
+  switch (scaleTier) {
+    case "free_tier": return { min: 50, max: 500 };
+    case "growth": return { min: 500, max: 3000 };
+    case "scale": return { min: 3000, max: 15000 };
+    case "large_scale": return { min: 15000, max: 80000 };
+    case "distributed": return { min: 80000, max: 150000 };
+    default: return { min: 500, max: 3000 };
+  }
+}
+
+function buildFallbackArchitecture({ analysis, serviceStack, idea, users }) {
+  const services = extractServicesFromStep2(serviceStack);
+  const scaleTier = extractScaleTier(analysis);
+  const range = scaleRangeForTier(scaleTier);
+  const perServiceMin = Math.max(5, Math.round(range.min / Math.max(1, services.length || 1)));
+  const perServiceMax = Math.max(perServiceMin, Math.round(range.max / Math.max(1, services.length || 1)));
+
+  const awsServices = services.map((s) => ({
+    ...s,
+    estimated_monthly_cost: formatUsdRange(perServiceMin, perServiceMax, false),
+  }));
+
+  return {
+    scale_analysis: `Classified as ${scaleTier} for approximately ${users} users with services aligned to project requirements.`,
+    architecture_overview: {
+      strategy: `A serverless-first AWS design for ${idea}, with security, API, compute, and data components selected from the service planner.`,
+      read_flow: "User -> Cognito -> API Gateway -> Lambda/ECS -> DynamoDB",
+      write_flow: "User -> API Gateway -> Lambda/ECS -> DynamoDB",
+      realtime_flow: "N/A - no real-time features",
+      async_flow: "N/A - no async processing",
+    },
+    aws_services: awsServices,
+    cost_breakdown: {
+      monthly_estimate: formatUsdRange(range.min, range.max, true),
+      per_service: awsServices.map((s) => ({
+        service: s.name,
+        cost: s.estimated_monthly_cost,
+      })),
+      cost_notes: "Fallback estimate generated after model JSON parse failure.",
+    },
+    implementation_steps: [
+      {
+        phase: "Phase 1 - Foundation",
+        duration: "1-2 weeks",
+        tasks: ["Provision core services", "Configure auth and API", "Set up CI/CD"],
+      },
+      {
+        phase: "Phase 2 - Build",
+        duration: "2-4 weeks",
+        tasks: ["Implement application logic", "Integrate data layer", "Add observability"],
+      },
+    ],
+    mermaid: "",
+  };
 }
 
 /* =========================
@@ -344,6 +484,7 @@ STRICT RULES:
 - No service in aws_services that was not in the Step 2 input
 - Be concise in strings to avoid hitting length limits
 - All JSON strings must be properly escaped
+- If Budget is provided, monthly_estimate upper bound MUST be <= budget upper bound
 `;
 
     const step3User = `
@@ -357,16 +498,22 @@ Project: ${idea}
 Users: ${users}, Budget: ${budget || "not specified"}
 `;
 
-    const jsonRaw = await callLlama(step3System, step3User, 2500);
+    let jsonRaw = await callLlama(step3System, step3User, 2500);
 
     let parsed = safeParse(jsonRaw);
     if (!parsed) parsed = attemptJsonRecovery(jsonRaw);
 
     if (!parsed) {
-      return res.status(500).json({
-        success: false,
-        error: "Invalid JSON from Step 3 — recovery failed",
-      });
+      const step3RetrySystem = `
+Return ONLY valid JSON matching the exact schema below. No markdown or comments.
+Keep values concise and validly escaped.
+`;
+      jsonRaw = await callLlama(`${step3System}\n${step3RetrySystem}`, step3User, 2200);
+      parsed = safeParse(jsonRaw) || attemptJsonRecovery(jsonRaw);
+    }
+
+    if (!parsed) {
+      parsed = buildFallbackArchitecture({ analysis, serviceStack, idea, users });
     }
 
     parsed.aws_services = parsed.aws_services || [];
@@ -516,9 +663,18 @@ MERMAID SYNTAX RULES:
       }
     }
 
+    finalData = applyBudgetCap(finalData, budget);
     res.json({ success: true, data: finalData });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.name, message: err.message });
+    const fallback = buildFallbackArchitecture({
+      analysis: "SCALE: growth",
+      serviceStack: "",
+      idea: req.body?.idea || "Project",
+      users: req.body?.users || "unknown",
+    });
+    fallback.cost_breakdown.cost_notes = `Fallback due to backend error: ${err.message}`;
+    const finalData = applyBudgetCap(fallback, req.body?.budget);
+    res.status(200).json({ success: true, data: finalData, degraded: true });
   }
 });
 

@@ -15,55 +15,6 @@ const toNumber = (value) => {
   return Math.round((nums[0] + nums[nums.length - 1]) / 2);
 };
 
-const parseMermaidToDiagram = (mermaidText) => {
-  if (!mermaidText || typeof mermaidText !== 'string') return { nodes: [], edges: [] };
-
-  const edgeMatches = [...mermaidText.matchAll(/([A-Za-z0-9_]+)\s*-->\s*(?:\|[^|]*\|\s*)?([A-Za-z0-9_]+)/g)];
-  if (!edgeMatches.length) return { nodes: [], edges: [] };
-
-  const rawEdges = edgeMatches.map((m) => ({ from: m[1], to: m[2] }));
-  const ids = Array.from(new Set(rawEdges.flatMap((e) => [e.from, e.to])));
-
-  const labelMap = {};
-  const labelMatches = [...mermaidText.matchAll(/([A-Za-z0-9_]+)\["([^"]+)"\]/g)];
-  labelMatches.forEach((m) => { labelMap[m[1]] = m[2]; });
-
-  const byLevel = new Map();
-  ids.forEach((id, i) => {
-    const level = Math.floor(i / 3);
-    if (!byLevel.has(level)) byLevel.set(level, []);
-    byLevel.get(level).push(id);
-  });
-
-  const typeFromLabel = (label) => {
-    const l = (label || '').toLowerCase();
-    if (l.includes('api') || l.includes('gateway')) return 'ingestion';
-    if (l.includes('stream') || l.includes('kinesis') || l.includes('msk')) return 'streaming';
-    if (l.includes('lambda') || l.includes('ecs') || l.includes('compute')) return 'compute';
-    if (l.includes('s3') || l.includes('storage') || l.includes('db') || l.includes('dynamo')) return 'storage';
-    if (l.includes('redshift') || l.includes('athena') || l.includes('opensearch')) return 'analytics';
-    return 'compute';
-  };
-
-  const nodes = [];
-  const levelGapX = 190;
-  const rowGapY = 90;
-  byLevel.forEach((idsAtLevel, level) => {
-    idsAtLevel.forEach((id, idx) => {
-      const label = labelMap[id] || id.replace(/_/g, ' ');
-      nodes.push({
-        id,
-        label: label.length > 16 ? `${label.slice(0, 16)}...` : label,
-        x: 80 + level * levelGapX,
-        y: 80 + idx * rowGapY,
-        type: typeFromLabel(label),
-      });
-    });
-  });
-
-  return { nodes, edges: rawEdges };
-};
-
 const normalizeDemoPayload = (payload, userPrompt) => {
   const services = Array.isArray(payload?.aws_services) ? payload.aws_services : [];
   const costRows = Array.isArray(payload?.cost_breakdown?.per_service) ? payload.cost_breakdown.per_service : [];
@@ -81,7 +32,7 @@ const normalizeDemoPayload = (payload, userPrompt) => {
     detail: row?.note || '',
   }));
 
-  const diagram = parseMermaidToDiagram(payload?.mermaid);
+  const diagram = payload?.mermaid || '';
 
   return {
     prompt: userPrompt,
