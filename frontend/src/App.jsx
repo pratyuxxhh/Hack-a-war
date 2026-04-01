@@ -47,7 +47,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-bg-dark">
         <Navbar />
-        <main className="pt-16">
+        <main className="w-full pt-16">
           <Routes>
             <Route
               path="/"
